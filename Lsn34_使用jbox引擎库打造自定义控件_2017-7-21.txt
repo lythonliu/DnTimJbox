@@ -1,0 +1,93 @@
+
+组合控件	将系统的多个控件组合到一起，提高封装性，完成一个逻辑较为规则，稍微复杂的产品需求.
+			归纳以前的知识点和案例 （5min）
+			总结使用经验 （5min）
+				提高布局文件开发效率
+				降低布局文件维护成本
+				降低布局文件和Activity代码耦合性
+				容易扩展
+				简单易用
+
+第一部分：
+	JBox2d 入门：
+		Box2d是什么？
+			1.Box2d是一个强大的开源物理游戏引擎，用来模拟2D的物体运动和碰撞。Box2D内部集成了大量的物理力学和运动学计算，内部实现很复杂，但是封装性很好，暴露给开发者的接口简单友好
+			2.Box2d 反馈给开发者的结果只有坐标， 没有绘制接口，需要开发者自己绘制，需要我们自行绘制（画图说明）
+		Box2d做什么用？
+			做碰撞和运动的动画，让你的动画效果接近真实世界
+	查看官网和源码
+	maven工程转gradle命令：
+		gradle init --type pom
+
+	编译jar包：
+		gradlew :jbox2d-library(模块名称):assemble(任务) 
+		记得修改wrapper里面的配置文件
+	maven工程编译：
+		mvn install
+			
+	JBox2d的基本概念：
+		1. 刚体（rigid body）/物体（body）
+		一块十分坚硬的物质，它上面的任何两点之间的距离是完全不变的。它们就像钻石那样的坚硬。
+		
+		2. 形状（shape）
+		一块严格依附于物体的 2D碰撞几何结构，形状具有摩擦和恢复的材料性质。
+
+		3.固定装置(fixture)：
+		fixture绑定一个形状到物体，增加材料属性，例如密度，摩擦，恢复。
+		
+		4.约束
+		一个约束就是消除物体自由度的物理连接，在2D中，一个物体有3个自由度（水平，垂直，旋转），比如秒针，固定后，消除了想x，y的自由度，只剩下旋转一个自由度
+		
+		
+		5.世界 world
+		一个物理世界就是物体，形状和约束相互作用的集合。Box2D支持创建多个世界，但这通常是不必要的。
+		
+	JBox2D的核心类介绍（Doc文件）
+	
+	一.世界的创建
+
+	首先对于box2d来说，最重要的就是创建一个物理世界，来管理和模拟这个世界里的所有物体状态。
+			AABB aabb = new AABB();  
+			aabb.lowerBound = new Vec2(-100, -100);  
+			aabb.upperBound = new Vec2(100, 100);  
+			Vec2 gravity = new Vec2(0, 10);  
+			world = new World(aabb, gravity, true);
+	
+	第一步，通过AABB实例来设置这个世界的边界，在边界外的物体就停止模拟。
+	第二步，创建一个world世界对象。传入的三个参数分别表示。aabb指定世界的边界，gravity世界的重力矢量，第三个是是否当一个物体停止运动后允许其休眠，无需在模拟该物体。
+	
+	二.在世界里创建物体。
+
+		创建一个刚体涉及到的三个类：
+		ShapeDef类，形状定义类（当然一般我们都用的是他的子类。）对于把这个定义为形状定义类，其实总觉得怪怪的，因为对于物体的摩擦力恢复力密度等等是通过它类指定的。可能说我们一般认为形状定义可能是物体的外部结构，摩擦力定义在这里可能还说的过去，因为摩擦力可能要涉及到物体外部表层的特性。对于密度，恢复力我一直觉得应该算是一个物体的特有属性吧。
+
+		BodyDef类，刚体定义类。主要用来描述物体位置，角度等
+
+		Body类，刚体类，也就是通过形状定义和刚体定义完成一个刚体实例。
+
+		一个物体的创建，简单就分三步 
+          
+        PolygonDef pd = new PolygonDef();  
+        pd.density = density;//密度  
+        pd.friction = 0.8f;//摩擦力  
+        pd.restitution = 0.7f;//恢复力  
+        pd.setAsBox(w / 2 / Constant.RATE , h / 2 / Constant.RATE );  
+          
+        BodyDef bd = new BodyDef();  
+        bd.position.set((x+w/2)/Constant.RATE, ( y +h/2)/Constant.RATE);  
+        bd.angle = (float) (angle * Math.PI / 180);  
+          
+        Body body = world.createBody(bd);  
+        body.m_userData = new MyRect(x, y, w, h);  
+        body.createShape(pd);  
+        body.setMassFromShapes();  
+        return body;
+		
+
+    friction = 0.3f; //摩擦系数
+	desity = 0.5f; //刚体密度
+    restituion = 0.3f; //补偿系数
+	
+
+
+ 
